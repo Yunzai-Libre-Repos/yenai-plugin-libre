@@ -7,7 +7,7 @@
 
 export const helpCfg = {
   title: "椰奶群管帮助",
-  subTitle: "Yunzai-Bot & Yenai-Plugin",
+  subTitle: "Yunzai-Bot & Yenai-Plugin-Libre",
   columnCount: 3,
   colWidth: 265,
   theme: "all",

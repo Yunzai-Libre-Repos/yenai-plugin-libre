@@ -15,7 +15,7 @@ export function supportGuoba () {
   return {
     pluginInfo: {
       name: "yenai-plugin",
-      title: "Yenai-Plugin",
+      title: "Yenai-Plugin-Libre",
       author: "@椰羊",
       authorLink: "https://gitee.com/yeyang52",
       link: "https://gitee.com/yeyang52/yenai-plugin",

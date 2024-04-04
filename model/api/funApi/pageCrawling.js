@@ -16,11 +16,11 @@ export async function pandadiu (type = "cos", keywords = "") {
   if (keywords) {
     homeUrl = `${domain}/index.php?m=search&c=index&a=init&typeid=1&siteid=1&q=${keywords}`
   }
-  logger.debug("[Yenai-Plugin][acg]作品索引页：" + homeUrl)
+  logger.debug("[Yenai-Plugin-Libre][acg]作品索引页：" + homeUrl)
   const home = await request.get(homeUrl).then(res => res.text())
   const href = _.sample(_.map(cheerio.load(home)("div.cos-list.clearfix > ul > a, div.cover.mod_imgLight > a"), item => item.attribs.href))
   if (!href) throw new ReplyError("未找到结果")
-  logger.debug("[Yenai-Plugin][acg]图片详情页：" + domain + href)
+  logger.debug("[Yenai-Plugin-Libre][acg]图片详情页：" + domain + href)
   const details = await request.get(domain + href).then(res => res.text())
   const $ = cheerio.load(details)
   const imgs = _.map($("div.con > p > img"), item =>
@@ -110,7 +110,7 @@ export async function coser () {
   let cheerio = await _importDependency()
   const domain = "https://t2cy.com"
   const homeUrl = `${domain}/acg/cos/index_${_.random(1, 30)}.html`
-  logger.debug("[Yenai-Plugin][coser]作品索引页：" + homeUrl)
+  logger.debug("[Yenai-Plugin-Libre][coser]作品索引页：" + homeUrl)
   const home = await request.get(homeUrl).then(res => res.text())
   const $ = cheerio.load(home)
   const href = _.sample(
@@ -120,7 +120,7 @@ export async function coser () {
     )
   )
   if (!href) throw new ReplyError("未知错误")
-  logger.debug("[Yenai-Plugin][coser]图片详情页：" + domain + href)
+  logger.debug("[Yenai-Plugin-Libre][coser]图片详情页：" + domain + href)
   const imgPage = await request.get(domain + href).then(res => res.text())
   const $1 = cheerio.load(imgPage)
   const imgList = _.map(

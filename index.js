@@ -19,10 +19,10 @@ const events = fs.readdirSync(eventsPath)
   .filter(file => file.endsWith(".js"))
 for (const File of events) {
   try {
-    logger.debug(`[Yenai-Plugin] 加载监听事件：${File}`)
+    logger.debug(`[Yenai-Plugin-Libre] 加载监听事件：${File}`)
     await import(`./apps/events/${File}`)
   } catch (e) {
-    logger.error(`[Yenai-Plugin] 监听事件错误：${File}`)
+    logger.error(`[Yenai-Plugin-Libre] 监听事件错误：${File}`)
     logger.error(e)
   }
 }

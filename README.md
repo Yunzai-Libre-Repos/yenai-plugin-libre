@@ -1,13 +1,14 @@
 ## libre分支说明
 本分支为 [原项目 (yeyang52/yenai-plugin)](https://github.com/yeyang52/yenai-plugin) 的libre分支  
 该分支移除了插件作者设置的后门，不定期同步更新。  
+为了和原项目进行区分，在部分位置添加了“Libre”标识。  
 若发现本分支有遗漏未处理的后门，请第一时间发issue，我看到后会立刻处理！
 
 <img src="resources/img/logo.gif" alt="看板娘" width = "200" align="right">
 
 <div align="left">
 
-# Yenai-Plugin
+# Yenai-Plugin - Libre
 
 🐑 **_Yenai-Plugin是一个Yunzai-Bot的扩展插件，提供对Bot的一些便捷操作。_**<img src="https://media.giphy.com/media/mGcNjsfWAjY5AEZNw6/giphy.gif" width="50">
 

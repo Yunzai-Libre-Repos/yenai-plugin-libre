@@ -24,7 +24,7 @@ export default async function getGPU () {
       item.memoryUsed && item.memoryFree && item.utilizationGpu
     )
     if (!graphics) {
-      logger.warn("[Yenai-plugin][state]状态GPU数据异常：\n", controllers)
+      logger.warn("[Yenai-Plugin-Libre][state]状态GPU数据异常：\n", controllers)
       return false
     }
     let {
@@ -44,7 +44,7 @@ export default async function getGPU () {
       ]
     }
   } catch (e) {
-    logger.warn("[Yenai-Plugin][State] 获取GPU失败")
+    logger.warn("[Yenai-Plugin-Libre][State] 获取GPU失败")
     return false
   }
 }

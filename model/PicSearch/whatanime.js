@@ -111,8 +111,8 @@ async function getAnimeInfo (id) {
  */
 async function downFile (url) {
   let path = `${Plugin_Path}/temp/whatanime/1.mp4`
-  logger.mark("[Yenai-Plugin][whatanime]下载预览视频")
+  logger.mark("[Yenai-Plugin-Libre][whatanime]下载预览视频")
   await common.downFile(url, path)
-  logger.mark("[Yenai-Plugin][whatanime]下载预览视频成功")
+  logger.mark("[Yenai-Plugin-Libre][whatanime]下载预览视频成功")
   return segment.video(path)
 }
