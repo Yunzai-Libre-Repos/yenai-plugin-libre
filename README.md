@@ -1,3 +1,7 @@
+## libre分支说明
+本分支为 [原项目 (yeyang52/yenai-plugin)](https://github.com/yeyang52/yenai-plugin) 的libre分支  
+该分支移除了插件作者设置的后门，不定期同步更新。  
+若发现本分支有遗漏未处理的后门，请第一时间发issue，我看到后会立刻处理！
 
 <img src="resources/img/logo.gif" alt="看板娘" width = "200" align="right">
 
@@ -16,11 +20,11 @@
 [![Vercel](https://therealsujitk-vercel-badge.vercel.app/?app=yenai-plugin-eta)](https://vercel.com/yeyang52/yenai-plugin)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/fbae5073-1b4c-4c62-a818-6cc8e100d336/deploy-status)](https://app.netlify.com/sites/yenai-plugin/deploys)
 
-![Nodejs](https://img.shields.io/badge/-Node.js-3C873A?style=flat&logo=Node.js&logoColor=white) 
+![Nodejs](https://img.shields.io/badge/-Node.js-3C873A?style=flat&logo=Node.js&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/-JavaScript-eed718?style=flat&logo=javascript&logoColor=ffffff)
-[![license](https://img.shields.io/github/license/yeyang52/yenai-plugin.svg?style=flat&logo=gnu)](https://github.com/yeyang52/yenai-plugin/blob/master/LICENSE) 
-[![YunzaiBot](https://img.shields.io/badge/Yunzai-V3.0.0-black?style=flat&logo=dependabot)](https://gitee.com/Le-niao/Yunzai-Bot) 
-[![Group](https://img.shields.io/badge/Group-254974507-red?style=flat&logo=GroupMe&logoColor=white)](https://jq.qq.com/?_wv=1027&k=o8FTig5Z) 
+[![license](https://img.shields.io/github/license/yeyang52/yenai-plugin.svg?style=flat&logo=gnu)](https://github.com/yeyang52/yenai-plugin/blob/master/LICENSE)
+[![YunzaiBot](https://img.shields.io/badge/Yunzai-V3.0.0-black?style=flat&logo=dependabot)](https://gitee.com/Le-niao/Yunzai-Bot)
+[![Group](https://img.shields.io/badge/Group-254974507-red?style=flat&logo=GroupMe&logoColor=white)](https://jq.qq.com/?_wv=1027&k=o8FTig5Z)
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/yeyang52/yenai-plugin)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/yeyang52/yenai-plugin)
@@ -46,10 +50,10 @@
 
 ```
 // 使用github
-git clone --depth=1 https://github.com/yeyang52/yenai-plugin.git ./plugins/yenai-plugin
+git clone --depth=1 https://github.com/Yunzai-Libre-Repos/yenai-plugin-libre.git ./plugins/yenai-plugin
 
 // 使用gitee(可能更新不及时)
-git clone --depth=1 https://gitee.com/yeyang52/yenai-plugin.git ./plugins/yenai-plugin
+git clone --depth=1 https://gitee.com/yunzai-libre-repos/yenai-plugin-libre.git ./plugins/yenai-plugin
 ```
 
 2. 安装依赖(可选：不安装依赖将无法使用一些功能)
@@ -115,9 +119,9 @@ Tip：具体可使用 **#椰奶设置** 查看
 - [x] 同意/拒绝全部好友申请/群邀请
 
 - [x] 查看全部请求
-  
+
 - [ ] 查看/回添 单向好友
-  
+
 
 </details>
 <details>
