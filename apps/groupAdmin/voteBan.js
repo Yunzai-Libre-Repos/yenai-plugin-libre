@@ -10,7 +10,7 @@ let Vote = {}
 let time = 180 // 投票超时时间 单位秒
 
 export class NewGroupVerify extends plugin {
-  constructor () {
+  constructor() {
     super({
       name: "椰奶投票禁言",
       dsc: "投票禁言某人",
@@ -29,7 +29,7 @@ export class NewGroupVerify extends plugin {
     })
   }
 
-  async Initiate (e) {
+  async Initiate(e) {
     if (!common.checkPermission(e, "all", "admin")) return
     let targetQQ = e.at || (e.msg.match(/\d+/)?.[0] || "")
     targetQQ = Number(targetQQ) || String(targetQQ)
@@ -51,10 +51,9 @@ export class NewGroupVerify extends plugin {
     Vote[key] = {
       supportCount: 1,
       opposeCount: 0,
-      List: [e.user_id]
+      List: [ e.user_id ]
     }
-    e.reply([
-      "对",
+    let res = await e.reply([
       segment.at(targetQQ),
       `(${targetQQ})的禁言投票已发起\n`,
       "发起人:",
@@ -63,11 +62,12 @@ export class NewGroupVerify extends plugin {
       "请支持者发送：\n",
       `「#支持禁言${targetQQ}」\n`,
       "不支持者请发送：\n",
-      `#反对禁言${targetQQ}」\n`,
+      `「#反对禁言${targetQQ}」\n`,
       `超时时间：${time}秒\n`,
       "规则：支持票大于反对票且参与人高于3人即可成功禁言"
     ])
-    setTimeout(async () => {
+    if (!res) return false
+    setTimeout(async() => {
       // 处理结果
       if (!Vote[key]) return
       const { supportCount, opposeCount } = Vote[key]
@@ -81,9 +81,23 @@ export class NewGroupVerify extends plugin {
       delete Vote[key]
       return e.reply(msg, true)
     }, time * 1000)
+    setTimeout(async() => {
+      const { supportCount, opposeCount } = Vote[key]
+      const msg = [
+        segment.at(targetQQ),
+        `(${targetQQ})的禁言投票仅剩一分钟结束\n`,
+        "当前票数：\n",
+      `支持票数：${supportCount}\n反对票数：${opposeCount}\n`,
+      "请支持者发送：\n",
+        `「#支持禁言${targetQQ}」\n`,
+        "不支持者请发送：\n",
+        `「#反对禁言${targetQQ}」\n`
+      ]
+      e.reply(msg)
+    }, time * 1000 - 60000)
   }
 
-  async Follow (e) {
+  async Follow(e) {
     if (!common.checkPermission(e, "all", "admin")) return
     let targetQQ = e.at || (e.msg.match(/\d+/)?.[0] || "")
     targetQQ = Number(targetQQ) || String(targetQQ)
@@ -94,7 +108,7 @@ export class NewGroupVerify extends plugin {
 
     if (!Vote[key]) return e.reply("❎ 未找到对应投票")
 
-    if (e.member.is_admin && e.member.is_owner) {
+    if (e.member.is_admin || e.member.is_owner) {
       if (/支持/.test(e.msg)) {
         await e.reply("投票结束，管理员介入，无需投票直接执行禁言", true)
         await e.group.muteMember(targetQQ, 3600)
