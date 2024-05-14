@@ -1,20 +1,8 @@
-import _ from "lodash"
-import { Config } from "../components/index.js"
-import { heisiType, pandadiuType, xiurenTypeId } from "../constants/fun.js"
+import { pandadiuType, xiurenTypeId } from "../constants/fun.js"
 import { common, funApi, uploadRecord } from "../model/index.js"
 
 /** 开始执行文案 */
 const START_EXECUTION = "椰奶产出中......"
-
-const picApis = Config.getConfig("picApi")
-/** 解析匹配模式 */
-const picApiKeys = []
-
-_.forIn(picApis, (values, key) => {
-  let mode = values.mode !== undefined ? values.mode : picApis.mode
-  key = key.split("|").map(item => mode ? "^" + item + "$" : item).join("|")
-  picApiKeys.push(key)
-})
 
 export class Fun extends plugin {
   constructor(e) {
@@ -50,10 +38,6 @@ export class Fun extends plugin {
         {
           reg: `^#来点(${Object.keys(xiurenTypeId).join("|")})$`,
           fnc: "xiuren"
-        },
-        {
-          reg: "^#?(查?看|取)头像",
-          fnc: "LookAvatar"
         }
       ]
     })
@@ -143,18 +127,6 @@ export class Fun extends plugin {
       .catch(err => common.handleException(e, err))
   }
 
-  // 黑丝
-  async heisiwu(e) {
-    if (!common.checkSeSePermission(e, "sesepro")) return false
-
-    e.reply(START_EXECUTION)
-    // 获取类型
-    const { type, page } = heisiType[e.msg.match(/#?来点(.*)/)[1]]
-    await funApi.heisiwu(type, page)
-      .then(res => common.recallSendForwardMsg(e, _.take(res, 20)))
-      .catch(err => common.handleException(e, err))
-  }
-
   // 萌堆
   async mengdui(e) {
     if (!common.checkSeSePermission(e, "sesepro")) return false
@@ -173,21 +145,5 @@ export class Fun extends plugin {
     await funApi.xiuren(e.msg.replace(/#?来点/, ""))
       .then(res => common.recallSendForwardMsg(e, res))
       .catch(err => common.handleException(e, err))
-  }
-
-  // 查看头像
-  async LookAvatar() {
-    const id = this.e.msg.replace(/^#?((查?看头像)|取头像)/, "").trim() || this.e.at ||
-      this.e.message.find(item => item.type == "at")?.qq || this.e.user_id
-    try {
-      let url = await this.e.group?.pickMember(id)?.getAvatarUrl()
-      if (!url) url = await this.e.bot.pickFriend(id).getAvatarUrl()
-      const msgTest = this.e.msg.includes("取头像")
-      if (url) return await this.e.reply(msgTest ? `${url}` : segment.image(url))
-    } catch (error) {
-      logger.error("获取头像错误", error)
-    }
-    await this.reply("❎ 获取头像错误", true)
-    return false
   }
 }

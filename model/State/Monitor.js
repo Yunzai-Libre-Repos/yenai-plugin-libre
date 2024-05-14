@@ -1,8 +1,6 @@
-import { Config, Data } from "../../components/index.js"
+import { Config } from "../../components/index.js"
 import _ from "lodash"
-import { si } from "./index.js"
-import { initDependence } from "./DependencyChecker.js"
-import { addData, getFileSize } from "./utils.js"
+import { si, initDependence, addData } from "./utils.js"
 
 export default new class monitor {
   constructor() {
@@ -27,10 +25,7 @@ export default new class monitor {
       // cpu
       cpu: [],
       // 内存
-      ram: [],
-      // 主题
-      echarts_theme: Data.readJSON("resources/state/theme_westeros.json"),
-      backdrop: Config.state.backdrop
+      ram: []
     }
     this.valueObject = {
       networkStats: "rx_sec,tx_sec,iface",
@@ -38,6 +33,7 @@ export default new class monitor {
       mem: "active",
       fsStats: "wx_sec,rx_sec"
     }
+    this.chartDataKey = "yenai:state:chartData"
 
     this.init()
   }
@@ -68,11 +64,12 @@ export default new class monitor {
 
   async init() {
     if (!await initDependence()) return
-
+    await this.getRedisChartData()
     // 给有问题的用户关闭定时器
     if (!Config.state.statusTask) return
 
     if (Config.state.statusPowerShellStart) si.powerShellStart()
+    // 初始化数据
     this.getData()
     // 网速
     const Timer = setInterval(async() => {
@@ -103,38 +100,24 @@ export default new class monitor {
     if (_.isNumber(currentLoad)) {
       addData(this.chartData.cpu, [ Date.now(), currentLoad ])
     }
+    this.setRedisChartData()
     return data
   }
 
-  // 获取读取速率
-  get DiskSpeed() {
-    if (!this.fsStats ||
-      this.fsStats.rx_sec == null ||
-      this.fsStats.wx_sec == null
-    ) {
-      return false
+  async getRedisChartData() {
+    let data = await redis.get(this.chartDataKey)
+    if (data) {
+      this.chartData = JSON.parse(data)
+      return true
     }
-    return {
-      rx_sec: getFileSize(this.fsStats.rx_sec, false, false),
-      wx_sec: getFileSize(this.fsStats.wx_sec, false, false)
-    }
+    return false
   }
 
-  /**
-   *  获取网速
-   * @returns {object}
-   */
-  get getNetwork() {
-    let network = _.cloneDeep(this.network)?.[0]
-    if (!network || network.rx_sec == null || network.tx_sec == null) {
-      return false
-    }
-    network.rx_sec = getFileSize(network.rx_sec, false, false)
-    network.tx_sec = getFileSize(network.tx_sec, false, false)
-    // return network
-    return {
-      first: network.iface,
-      tail: `↑${network.tx_sec}/s | ↓${network.rx_sec}/s`
+  async setRedisChartData() {
+    try {
+      await redis.set(this.chartDataKey, JSON.stringify(this.chartData), { EX: 86400 })
+    } catch (error) {
+      console.log(error)
     }
   }
 }()

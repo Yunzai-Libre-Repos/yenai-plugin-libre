@@ -123,6 +123,11 @@ export const helpList = [
         title: "#加|移精",
         desc: "回复消息进行加/移精",
         icon: 18
+      },
+      {
+        title: "#我要自闭 <时间>",
+        desc: "自闭一会",
+        icon: 20
       }
     ]
   }, {
@@ -175,11 +180,6 @@ export const helpList = [
         icon: 2,
         title: "#群星级",
         desc: "查看群星级"
-      },
-      {
-        title: "#今天谁生日",
-        desc: "今天可换为昨天或后天或日期",
-        icon: 12
       }, {
         title: "#哪个叼毛是龙王",
         desc: "查看谁是龙王",
@@ -198,8 +198,36 @@ export const helpList = [
         icon: 16
       }
     ]
-  },
-  {
+  }, {
+    group: "投票禁言(更多配置请看config/groupAdmin.yaml)",
+    list: [
+      {
+        title: "#(启用|禁用)投票禁言",
+        desc: "是否允许群员投票",
+        icon: 4
+      }, {
+        title: "#投票禁言<@QQ>",
+        desc: "投票禁言不听话的群员",
+        icon: 6
+      }, {
+        title: "#(支持|反对)禁言<@QQ>",
+        desc: "跟随投票",
+        icon: 12
+      }, {
+        title: "#投票设置超时时间<时间>",
+        desc: "单位：秒",
+        icon: 16
+      }, {
+        title: "#投票设置最低票数<数字>",
+        desc: "投票成功所需的人数",
+        icon: 13
+      }, {
+        title: "#投票设置禁言时间<时间>",
+        desc: "投票成功禁言的时间，单位：秒",
+        icon: 15
+      }
+    ]
+  }, {
     group: "其他",
     list: [
       {

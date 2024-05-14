@@ -1,6 +1,4 @@
-import { Circle } from "./utils.js"
-import { si } from "./index.js"
-import { initDependence } from "./DependencyChecker.js"
+import { Circle, si, initDependence } from "./utils.js"
 
 let isGPU = false;
 
@@ -29,18 +27,17 @@ export default async function getGPU() {
     }
     let {
       vendor, temperatureGpu, utilizationGpu,
-      memoryTotal, memoryUsed, powerDraw
+      memoryTotal, memoryUsed /* powerDraw */
     } = graphics
     temperatureGpu && (temperatureGpu = temperatureGpu + "℃")
-    powerDraw && (powerDraw = powerDraw + "W")
+    // powerDraw && (powerDraw = powerDraw + "W")
     return {
       ...Circle(utilizationGpu / 100),
       inner: Math.round(utilizationGpu) + "%",
       title: "GPU",
       info: [
-          `${vendor} ${temperatureGpu} ${powerDraw}`,
-          `总共 ${(memoryTotal / 1024).toFixed(2)}G`,
-          `已用 ${(memoryUsed / 1024).toFixed(2)}G`
+        `${(memoryUsed / 1024).toFixed(2)} GB / ${(memoryTotal / 1024).toFixed(2)} GB`,
+        `${vendor} ${temperatureGpu}`
       ]
     }
   } catch (e) {

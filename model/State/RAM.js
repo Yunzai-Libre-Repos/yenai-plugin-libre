@@ -1,25 +1,33 @@
-import { getFileSize, Circle } from "./utils.js"
-import os from "os"
+import { Circle, getFileSize, si } from "./utils.js"
 
 /** 获取当前内存占用 */
-export default function getMemUsage() {
-  // 内存使用率
-  let MemUsage = (1 - os.freemem() / os.totalmem()).toFixed(2)
-  // 空闲内存
-  let freemem = getFileSize(os.freemem())
-  // 总共内存
-  let totalmem = getFileSize(os.totalmem())
-  // 使用内存
-  let Usingmemory = getFileSize((os.totalmem() - os.freemem()))
+export default async function getMemUsage() {
+  const { mem: { total, used, active, buffcache } } = await si.get({
+    mem: "total,used,active,buffcache"
+  })
+  const usedPercentage = (used / total).toFixed(2)
+  const activePercentage = (active / total).toFixed(2)
+  // const buffcachePercentage = (buffcache / total).toFixed(2)
+
+  const buffcacheMem = getFileSize(buffcache)
+  const totalMem = getFileSize(total)
+  const activeMem = getFileSize(active)
+
+  const isBuff = buffcache && buffcache != 0
+  // const buffcacheInner = isBuff ? `/${Math.round(buffcachePercentage * 100)}` : ""
 
   return {
-    ...Circle(MemUsage),
-    inner: Math.round(MemUsage * 100) + "%",
+    ...Circle(activePercentage),
+    inner: `${Math.round(activePercentage * 100)}%`,
     title: "RAM",
     info: [
-        `总共 ${totalmem}`,
-        `已用 ${Usingmemory}`,
-        `空闲 ${freemem}`
-    ]
+        `${activeMem} / ${totalMem}`,
+        isBuff ? `缓冲区/缓存 ${buffcacheMem}` : ""
+    ],
+    buffcache: {
+      ...Circle(usedPercentage),
+      color: "#bcbbbbb0",
+      isBuff
+    }
   }
 }

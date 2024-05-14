@@ -1,68 +1,77 @@
 import _ from "lodash"
+import moment from "moment"
+import { Config, Data } from "../../components/index.js"
 import common from "../../lib/common/common.js"
 import getBotState from "./BotState.js"
 import getCPU from "./CPU.js"
-import { osInfo, si } from "./DependencyChecker.js"
 import getFastFetch from "./FastFetch.js"
-import getFsSize from "./FsSize.js"
+import getFsSize, { getDiskSpeed } from "./FsSize.js"
 import getGPU from "./GPU.js"
 import Monitor from "./Monitor.js"
-import getNetworTestList from "./NetworkLatency.js"
-import getNodeInfo from "./NodeInfo.js"
-import getRAM from "./RAM.js"
+import { getNetwork, getNetworkTestList } from "./Network.js"
+import getNode from "./NodeInfo.js"
 import getOtherInfo, { getCopyright } from "./OtherInfo.js"
-
-export { osInfo, si }
+import getRAM from "./RAM.js"
+import getSWAP from "./SWAP.js"
+import getStyle from "./style.js"
 
 export async function getData(e) {
-  // 可视化数据
-  let visualData = _.compact(await Promise.all([
-    // CPU板块
+  e.isPro = e.msg.includes("pro")
+  /** bot列表 */
+
+  const visualDataPromise = Promise.all([
     getCPU(),
-    // 内存板块
     getRAM(),
-    // GPU板块
+    getSWAP(),
     getGPU(),
-    // Node板块
-    getNodeInfo()
-  ]))
-  let promiseTaskList = [
+    getNode()
+  ])
+  const promiseTaskList = [
+    visualDataPromise,
     getFastFetch(e),
-    getFsSize()
+    getFsSize(),
+    getNetworkTestList(e),
+    getBotState(e),
+    getStyle()
   ]
 
-  let NetworTestList = getNetworTestList()
-  promiseTaskList.push(NetworTestList)
-
-  let [ FastFetch, HardDisk, psTest ] = await Promise.all(promiseTaskList)
-  /** bot列表 */
-  let BotList = _getBotList(e)
-  let isBotIndex = /pro/.test(e.msg) && BotList.length > 1
-  return {
-    BotStatusList: await getBotState(BotList),
-    chartData: JSON.stringify(common.checkIfEmpty(Monitor.chartData, [ "echarts_theme", "cpu", "ram" ]) ? undefined : Monitor.chartData),
+  const [
     visualData,
+    FastFetch,
+    HardDisk, psTest, BotStatusList, style
+  ] = await Promise.all(promiseTaskList)
+
+  const chartData = JSON.stringify(
+    common.checkIfEmpty(Monitor.chartData, [ "echarts_theme", "cpu", "ram" ])
+      ? ""
+      : Monitor.chartData
+  )
+
+  // 配置
+  const { closedChart } = Config.state
+
+  return {
+    BotStatusList,
+    chartData: closedChart ? false : chartData,
+    visualData: _.compact(visualData),
     otherInfo: getOtherInfo(),
     psTest: _.isEmpty(psTest) ? undefined : psTest,
+    fsStats: getDiskSpeed(),
+    copyright: getCopyright(),
+    network: getNetwork(),
+    Config: JSON.stringify(Config.state),
     FastFetch,
     HardDisk,
-    // 硬盘速率
-    fsStats: Monitor.DiskSpeed,
-    copyright: getCopyright(),
-    isBotIndex
+    style,
+    time: moment().format("YYYY-MM-DD HH:mm:ss"),
+    isPro: e.isPro,
+    chartCfg: JSON.stringify(getChartCfg())
   }
 }
+export function getChartCfg() {
+  const echarts_theme = Data.readJSON("resources/state/theme_westeros.json")
 
-function _getBotList(e) {
-  /** bot列表 */
-  let BotList = [ e.self_id ]
-
-  if (e.msg.includes("pro")) {
-    if (Array.isArray(Bot?.uin)) {
-      BotList = Bot.uin
-    } else if (Bot?.adapter && Bot.adapter.includes(e.self_id)) {
-      BotList = Bot.adapter
-    }
+  return {
+    echarts_theme
   }
-  return BotList
 }

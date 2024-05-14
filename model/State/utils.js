@@ -1,5 +1,63 @@
 import _ from "lodash"
 
+export let si = false
+export let osInfo = null
+export let colorthief = null
+/**
+ * 异步初始化系统信息依赖
+ * 该函数尝试导入'systeminformation'模块，并获取操作系统信息。
+ * 如果导入失败，将根据错误类型打印不同警告信息。
+ * @returns {Promise<any>} 返回systeminformation模块的实例，如果导入失败则可能返回undefined。
+ */
+export async function initDependence() {
+  if (si) return si
+  try {
+    si = await import("systeminformation")
+    osInfo = await si.osInfo()
+    return si
+  } catch (error) {
+    if (error.stack?.includes("Cannot find package")) {
+      logger.warn("--------椰奶依赖缺失--------")
+      logger.warn(`yenai-plugin 缺少依赖将无法使用 ${logger.yellow("椰奶状态")}`)
+      logger.warn(`如需使用请运行：${logger.red("pnpm add systeminformation -w")}`)
+      logger.warn("---------------------------")
+      logger.debug(decodeURI(error.stack))
+    } else {
+      logger.error(`椰奶载入依赖错误：${logger.red("systeminformation")}`)
+      logger.error(decodeURI(error.stack))
+    }
+  }
+}
+
+await initDependence()
+
+export async function getImgColor(path) {
+  importColorThief()
+  const mainColor = await colorthief.getColor(path)
+  return {
+    mainColor: `rgb(${mainColor[0]},${mainColor[1]},${mainColor[2]})`,
+    path
+  }
+}
+export async function getImgPalette(path) {
+  await importColorThief()
+  const palette = await colorthief.getPalette(path)
+  const [ _1, _2 ] = palette
+  return {
+    similarColor1: `rgb(${_1[0]},${_1[1]},${_1[2]})`,
+    similarColor2: `rgb(${_2[0]},${_2[1]},${_2[2]})`,
+    path
+  }
+}
+
+export async function importColorThief() {
+  if (!colorthief) {
+    colorthief = await import("colorthief")
+    return colorthief
+  }
+  return colorthief
+}
+
 /**
  * 向数组中添加数据，如果数组长度超过允许的最大值，则删除最早添加的数据
  * @param {Array} arr - 要添加数据的数组
@@ -18,28 +76,46 @@ export function addData(arr, data, maxLen = 60) {
 }
 
 /**
- * 将文件大小从字节转化为可读性更好的格式，例如B、KB、MB、GB、TB。
- * @param {number} size - 带转化的字节数。
- * @param {boolean} [isByte] - 如果为 true，则最终的文件大小显示保留 B 的后缀.
- * @param {boolean} [isSuffix] - 如果为 true，则在所得到的大小后面加上 kb、mb、gb、tb 等后缀.
- * @returns {string} 文件大小格式转换后的字符串.
+ * 将字节大小转换成易读的文件大小格式
+ * @param {number} size - 要转换的字节大小
+ * @param {object} options - 转换选项
+ * @param {number} options.decimalPlaces - 小数点保留位数，默认为2
+ * @param {boolean} options.showByte - 是否在大小小于1KB时显示字节单位B，默认为true
+ * @param {boolean} options.showSuffix - 是否在单位后面显示缩写，默认为true
+ * @returns {string} 转换后的文件大小字符串
  */
-export function getFileSize(size, isByte = true, isSuffix = true) { // 把字节转换成正常文件大小
-  if (size == null || size == undefined) return 0
-  let num = 1024.00 // byte
-  if (isByte && size < num) {
-    return size.toFixed(2) + "B"
+export function getFileSize(size, { decimalPlaces = 2, showByte = true, showSuffix = true } = {}) {
+  // 检查 size 是否为 null 或 undefined
+  if (size === null || size === undefined) return 0 + "B"
+
+  // 检查 decimalPlaces 是否为整数
+  if (typeof decimalPlaces !== "number" || !Number.isInteger(decimalPlaces)) {
+    throw new Error("decimalPlaces 必须是一个整数")
   }
-  if (size < Math.pow(num, 2)) {
-    return (size / num).toFixed(2) + `K${isSuffix ? "b" : ""}`
-  } // kb
-  if (size < Math.pow(num, 3)) {
-    return (size / Math.pow(num, 2)).toFixed(2) + `M${isSuffix ? "b" : ""}`
-  } // M
-  if (size < Math.pow(num, 4)) {
-    return (size / Math.pow(num, 3)).toFixed(2) + "G"
-  } // G
-  return (size / Math.pow(num, 4)).toFixed(2) + "T" // T
+
+  const units = [ "B", "K", "M", "G", "T" ]
+  const powers = [ 0, 1, 2, 3, 4 ]
+  const num = 1024.00 // byte
+
+  // 提前计算 powers of 1024
+  const precalculated = powers.map(power => Math.pow(num, power))
+
+  let unitIndex = 0
+  while (size >= precalculated[unitIndex + 1] && unitIndex < precalculated.length - 1) {
+    unitIndex++
+  }
+
+  // 使用一个函数来构建返回的字符串
+  const buildSizeString = (value, unit, _showSuffix = showSuffix) => {
+    const suffix = ` ${unit}${_showSuffix ? "B" : ""}`
+    return value.toFixed(decimalPlaces) + suffix
+  }
+
+  if (showByte && size < num) {
+    return buildSizeString(size, "B", false)
+  }
+
+  return buildSizeString(size / precalculated[unitIndex], units[unitIndex])
 }
 
 /**
@@ -59,5 +135,29 @@ export function Circle(res) {
   return {
     per,
     color: `var(${color})`
+  }
+}
+
+export async function createAbortCont(timeoutMs) {
+  let AbortController
+
+  try {
+    AbortController = globalThis.AbortController || (await import("abort-controller")).AbortController
+  } catch (error) {
+    logger.error("无法加载AbortController:", error)
+    throw new Error("网络请求控制器加载失败")
+  }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    controller.abort()
+  }, timeoutMs)
+
+  // 可选：返回一个清理函数，以便在不需要超时时清除定时器
+  return {
+    controller,
+    clearTimeout: () => {
+      clearTimeout(timeoutId)
+    }
   }
 }
